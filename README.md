@@ -28,4 +28,6 @@ POST	    /api/comments	            Add comment
 Project Info
 Backend Developer - EHIKWE NKEMKAMMA EMMANUEL
 
+Render link = https://farmhub-backend-26rg.onrender.com
+
 N/B: This project was built for learning and team collaboration.
