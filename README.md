@@ -14,10 +14,7 @@ Packages Used
 How to Run
 i.   Clone the project
 ii.  Install packages using the command npm install
-iii. Create a .env file and add: 
-        - PORT=5000
-        - MONGO_URI=your_mongodb_link
-        - JWT_SECRET=your_secret_key
+iii. Create a .env file
 iv.  Run the app using the command npm run dev
 
 API Routes
