@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createProduct, getProducts, getProductById, updateProduct, deleteProduct} = require('../controllers/productController');
+const { createProduct, getProducts, getProductById, updateProduct, deleteProduct } = require('../controllers/productController');
 const { protect } = require('../middleware/authMiddleware');
 const commentRoutes = require('./commentRoutes');
 
@@ -13,9 +13,8 @@ router.post('/', protect, createProduct);
 // Get all Products
 router.get('/', getProducts);
 
-// Get all Products by ID
+// Get a single Product by ID
 router.get('/:id', getProductById);
-
 
 // Update a Product
 router.put('/:id', protect, updateProduct);
