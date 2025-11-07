@@ -16,7 +16,7 @@ router.get('/', getProducts);
 // Get a single Product by ID
 router.get('/:id', getProductById);
 
-// Update a Product
+// Update a ProductUp
 router.put('/:id', protect, updateProduct);
 
 // Delete a Product
