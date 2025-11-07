@@ -34,4 +34,41 @@ const getProductById = async (req, res) => {
   }
 };
 
-module.exports = { createProduct, getProducts, getProductById };
+// Update Product
+const updateProduct = async (req, res) => {
+  try {
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+       req.body,
+        { new: true, runValidators: true }
+      );
+
+        if(!updatedProduct) {
+          return res.status(404).json({ message: 'Product not found' });
+        }
+        res.status(200).json({
+          message: 'Product updated successfully',
+          updatedProduct
+        });
+     }  catch (error) {
+      res.status(400).json({ message: error.message });
+     }
+    };
+
+    // Delete Product
+const deleteProduct = async (req, res) => {
+  try {
+    const deleted = await Product.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.status(200).json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+
+module.exports = { createProduct, getProducts, getProductById, updateProduct, deleteProduct};
