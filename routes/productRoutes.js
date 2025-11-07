@@ -16,4 +16,11 @@ router.get('/', getProducts);
 // Get a single Product by ID
 router.get('/:id', getProductById);
 
+// Update a Product
+router.put('/:id', protect, updateProduct);
+
+// Delete a Product
+router.delete('/:id', protect, deleteProduct);
+
+
 module.exports = router;
