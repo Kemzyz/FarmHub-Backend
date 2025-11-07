@@ -55,7 +55,7 @@ const updateProduct = async (req, res) => {
      }
     };
 
-    // Delete Product
+// Delete Product
 const deleteProduct = async (req, res) => {
   try {
     const deleted = await Product.findByIdAndDelete(req.params.id);
@@ -70,5 +70,5 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-
+    
 module.exports = { createProduct, getProducts, getProductById, updateProduct, deleteProduct};
