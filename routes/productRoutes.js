@@ -9,6 +9,11 @@ router.use('/:id/comments', commentRoutes);
 
 // Create a Product
 router.post('/', protect, createProduct);
+
+// Get all Products
+router.get('/', getProducts);
+
+// Get a single Product by ID
 router.get('/:id', getProductById);
 
 module.exports = router;
