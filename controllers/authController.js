@@ -26,10 +26,16 @@ const loginUser = async (req, res) => {
 
     // Return token
     res.status(200).json({
-      _id: user.id,
+      message: 'Login successful',
+      user: {
+      id: user._id,
       name: user.name,
       email: user.email,
-      token: generateToken(user.id),
+      role: user.role,
+      location: user.location,
+      phone: user.phone,
+    },
+      token: generateToken(user._id),
     });
   } catch (error) {
     console.error(error);
