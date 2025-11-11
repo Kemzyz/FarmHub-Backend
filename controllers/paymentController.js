@@ -1,5 +1,6 @@
 const Order = require('../models/orderModel');
 const Payment = require('../models/paymentModel');
+const notifications = require('../services/notificationService');
 
 function getCurrency() {
   return process.env.PAYMENTS_CURRENCY || 'USD';
@@ -81,6 +82,25 @@ exports.flutterwaveWebhook = async (req, res) => {
     }
     await payment.save();
 
+    // Populate for notifications
+    const populated = await Payment.findById(payment._id)
+      .populate({
+        path: 'order',
+        populate: [
+          { path: 'buyer', select: 'name email phone' },
+          { path: 'farmer', select: 'name email phone' },
+          { path: 'items.product', select: 'name images' },
+        ],
+      })
+      .populate('buyer', 'name email phone')
+      .populate('farmer', 'name email phone');
+
+    if (payment.status === 'successful') {
+      await notifications.notifyPaymentSuccessful(populated);
+    } else if (payment.status === 'failed') {
+      await notifications.notifyPaymentFailed(populated);
+    }
+
     res.json({ ok: true });
   } catch (err) {
     console.error(err);
@@ -154,6 +174,25 @@ exports.pagaWebhook = async (req, res) => {
     if (statusRaw.includes('success')) payment.status = 'successful';
     else if (statusRaw.includes('fail') || statusRaw.includes('error')) payment.status = 'failed';
     await payment.save();
+
+    // Populate for notifications
+    const populated = await Payment.findById(payment._id)
+      .populate({
+        path: 'order',
+        populate: [
+          { path: 'buyer', select: 'name email phone' },
+          { path: 'farmer', select: 'name email phone' },
+          { path: 'items.product', select: 'name images' },
+        ],
+      })
+      .populate('buyer', 'name email phone')
+      .populate('farmer', 'name email phone');
+
+    if (payment.status === 'successful') {
+      await notifications.notifyPaymentSuccessful(populated);
+    } else if (payment.status === 'failed') {
+      await notifications.notifyPaymentFailed(populated);
+    }
 
     res.json({ ok: true });
   } catch (err) {

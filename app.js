@@ -26,6 +26,7 @@ const supportRoutes = require('./routes/supportRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 
 // Use routes
@@ -40,6 +41,7 @@ app.use('/api/support', supportRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/chat', chatRoutes);
 app.use(express.json());
 
 
