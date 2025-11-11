@@ -35,6 +35,10 @@ const upload = multer({
   fileFilter(req, file, cb) {
     checkFileType(file, cb);
   },
+  limits: {
+    files: 5, // max 5 files per request
+    fileSize: 5 * 1024 * 1024, // 5MB per file
+  },
 });
 
 module.exports = upload;

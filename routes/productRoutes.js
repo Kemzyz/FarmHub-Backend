@@ -8,8 +8,8 @@ const upload = require('../middleware/uploadMiddleware');
 // Nested routes for comments
 router.use('/:id/comments', commentRoutes);
 
-// Create a Product with image upload
-router.post('/', protect, upload.single('image'), createProduct);
+// Create a Product with multi-image upload (up to 5)
+router.post('/', protect, upload.array('images', 5), createProduct);
 
 // Get all Products
 router.get('/', getProducts);
@@ -17,7 +17,7 @@ router.get('/', getProducts);
 // Get a single Product by ID
 router.get('/:id', getProductById);
 
-// Update a ProductUp
+// Update a Product
 router.put('/:id', protect, updateProduct);
 
 // Delete a Product

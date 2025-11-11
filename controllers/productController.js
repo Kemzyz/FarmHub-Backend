@@ -1,19 +1,50 @@
 const Product = require('../models/productModel');
 
-// Create a new product with image
+// Create a new product (supports up to 5 images) with role/intent checks
 const createProduct = async (req, res) => {
   try {
-    // If image was uploaded, use its path; otherwise use imageUrl from body
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl;
+    const {
+      name,
+      category,
+      description,
+      location,
+      quantity,
+      unit,
+      priceMin,
+      priceMax,
+      availableFrom,
+      availableUntil,
+      organicCertified,
+      qualityCertified,
+      intent,
+    } = req.body;
+
+    // Enforce role: buyers cannot create sell intent listings
+    if (intent === 'sell' && req.user.role !== 'farmer') {
+      return res.status(403).json({ message: 'Only farmers can create sell listings' });
+    }
+
+    // Collect uploaded image paths (if any)
+    const images = Array.isArray(req.files)
+      ? req.files.map((f) => `/uploads/${f.filename}`)
+      : [];
 
     const product = await Product.create({
-      name: req.body.name,
-      category: req.body.category,
-      price: req.body.price,
-      description: req.body.description,
-      location: req.body.location,
-      imageUrl,                // save uploaded image path
-      seller: req.user.id,     // from authMiddleware
+      owner: req.user.id,
+      intent,
+      name,
+      category,
+      description,
+      location,
+      quantity,
+      unit,
+      priceMin,
+      priceMax,
+      availableFrom,
+      availableUntil,
+      organicCertified,
+      qualityCertified,
+      images,
     });
 
     res.status(201).json(product);
@@ -22,10 +53,64 @@ const createProduct = async (req, res) => {
   }
 };
 
-// Get all products
+// Get all products with filters and search
 const getProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate('seller', 'name location');
+    const {
+      q,
+      category,
+      location,
+      intent,
+      organicCertified,
+      qualityCertified,
+      unit,
+      priceMin,
+      priceMax,
+      availableFrom,
+      availableUntil,
+    } = req.query;
+
+    const filter = {};
+    if (category) filter.category = category;
+    if (location) filter.location = location;
+    if (intent) filter.intent = intent;
+    if (unit) filter.unit = unit;
+    if (typeof organicCertified !== 'undefined') filter.organicCertified = organicCertified === 'true';
+    if (typeof qualityCertified !== 'undefined') filter.qualityCertified = qualityCertified === 'true';
+
+    // Price range
+    if (priceMin || priceMax) {
+      filter.$and = [
+        ...(filter.$and || []),
+        {
+          ...(priceMin ? { priceMin: { $gte: Number(priceMin) } } : {}),
+          ...(priceMax ? { priceMax: { $lte: Number(priceMax) } } : {}),
+        },
+      ];
+    }
+
+    // Availability window overlap
+    if (availableFrom || availableUntil) {
+      const fromDate = availableFrom ? new Date(availableFrom) : undefined;
+      const untilDate = availableUntil ? new Date(availableUntil) : undefined;
+      if (fromDate || untilDate) {
+        filter.$and = [
+          ...(filter.$and || []),
+          {
+            ...(fromDate ? { availableUntil: { $gte: fromDate } } : {}),
+            ...(untilDate ? { availableFrom: { $lte: untilDate } } : {}),
+          },
+        ];
+      }
+    }
+
+    // Text search
+    if (q) {
+      const regex = new RegExp(q, 'i');
+      filter.$or = [{ name: regex }, { description: regex }, { category: regex }, { location: regex }];
+    }
+
+    const products = await Product.find(filter).populate('owner', 'name location role');
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -35,7 +120,7 @@ const getProducts = async (req, res) => {
 // Get single product
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate('seller', 'name location');
+    const product = await Product.findById(req.params.id).populate('owner', 'name location role');
     if (!product) return res.status(404).json({ message: 'Product not found' });
     res.json(product);
   } catch (err) {
@@ -43,36 +128,40 @@ const getProductById = async (req, res) => {
   }
 };
 
-// Update Product
+// Update Product (owner-only)
 const updateProduct = async (req, res) => {
   try {
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-       req.body,
-        { new: true, runValidators: true }
-      );
-
-        if(!updatedProduct) {
-          return res.status(404).json({ message: 'Product not found' });
-        }
-        res.status(200).json({
-          message: 'Product updated successfully',
-          updatedProduct
-        });
-     }  catch (error) {
-      res.status(400).json({ message: error.message });
-     }
-    };
-
-// Delete Product
-const deleteProduct = async (req, res) => {
-  try {
-    const deleted = await Product.findByIdAndDelete(req.params.id);
-
-    if (!deleted) {
-      return res.status(404).json({ message: 'Product not found' });
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    if (String(product.owner) !== String(req.user.id)) {
+      return res.status(403).json({ message: 'You do not own this product' });
     }
 
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      message: 'Product updated successfully',
+      updatedProduct,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// Delete Product (owner-only)
+const deleteProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    if (String(product.owner) !== String(req.user.id)) {
+      return res.status(403).json({ message: 'You do not own this product' });
+    }
+
+    await Product.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Product deleted successfully' });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -80,4 +169,4 @@ const deleteProduct = async (req, res) => {
 };
 
     
-module.exports = { createProduct, getProducts, getProductById, updateProduct, deleteProduct};
+module.exports = { createProduct, getProducts, getProductById, updateProduct, deleteProduct };
