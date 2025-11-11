@@ -18,6 +18,7 @@ const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const authRoutes = require('./routes/authRoutes');
+const farmerRoutes = require('./routes/farmerRoutes');
 
 
 // Use routes
@@ -25,6 +26,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/farmers', farmerRoutes);
 
 
 // Default route

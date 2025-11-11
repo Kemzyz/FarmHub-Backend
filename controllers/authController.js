@@ -47,6 +47,37 @@ const registerUser = async (req, res) => {
   }
 };
 
+const loginFarmer = async (req, res) => {
+  const { email, password } = req.body;
+ try {
+    const farmer = await User.findOne({ email, role: 'farmer' });
+    if (!farmer) {
+      return res.status(401).json({ message: 'farmer not found' });
+    }
+    //check password
+    const isMatch = await bcrypt.compare(password, farmer.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    res.status(200).json({
+      message: 'Login successful',
+      farmer: {
+        id: farmer._id,
+        name: farmer.name,
+        email: farmer.email,
+        role: farmer.role,
+        location: farmer.location,
+        phone: farmer.phone,
+      },
+      token: generateToken(farmer._id),
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+  
 // POST /api/auth/login  Login User
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -80,4 +111,4 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+module.exports = { registerUser, loginFarmer, loginUser};
