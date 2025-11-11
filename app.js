@@ -13,7 +13,7 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-// Example route imports
+// Route imports
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const commentRoutes = require('./routes/commentRoutes');

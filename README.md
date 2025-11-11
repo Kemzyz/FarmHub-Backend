@@ -1,33 +1,44 @@
-FarmHub is a simple project that connects farmers directly to buyers.  
-It removes middlemen, reduces waste, and helps farmers get fair prices.
+#  FarmHub Backend API Documentation (from Postman Collection)
 
-This is the BACKEND part of the project.  
-It was built using Node.js, Express.js, and MongoDB.
+##  Overview
+FarmHub is a backend service for managing users, farmers, and agricultural products.  
+It provides RESTful APIs for authentication,
+Built with **Node.js**, **Express.js**, and **MongoDB**.
 
-Packages Used
-- Node.js  
-- Express.js  
-- MongoDB (Mongoose)  
-- JWT for authentication  
-- Render for hosting
+---
 
-How to Run
-i.   Clone the project
-ii.  Install packages using the command npm install
-iii. Create a .env file
-iv.  Run the app using the command npm run dev
+##  Base URL
+**Deployed Backend:** https://farmhub-backend-26rg.onrender.com <br>
+**Local Backend:** http://localhost:5000
 
-API Routes
-Method	        Route	                 Description
-POST	    /api/users	                Register user
-POST	    /api/users/login	        Login user
-GET 	    /api/products	            Get all products
-POST	    /api/products	            Add product
-POST	    /api/comments	            Add comment
+---
+**Authentication**
 
-Project Info
+* Access tokens returned on successful login. Send as: Authorization: Bearer
+* Protected endpoints require the Authorization header.
+
+
+---
+
+## Setup Instructions
+
+```
+# Clone repository
+git clone https://github.com/Kemzyz/FarmHub-Backend.git
+
+# Navigate to folder
+cd FarmHub-Backend
+
+# Install dependencies
+npm install
+
+# Create .env file and include:
+MONGO_URI=<your-mongodb-url>
+JWT_SECRET=<your-secret-key>
+PORT=5000
+
+# Start server
+npm start
+
 Backend Developer - EHIKWE NKEMKAMMA EMMANUEL
-
-Render link = https://farmhub-backend-26rg.onrender.com
-
 N/B: This project was built for learning and team collaboration.
