@@ -47,6 +47,7 @@ const registerUser = async (req, res) => {
   }
 };
 
+// POST /api/auth/farmer/login  Login Farmer
 const loginFarmer = async (req, res) => {
   const { email, password } = req.body;
  try {
