@@ -1,12 +1,21 @@
 const Product = require('../models/productModel');
 
-// Create a new product
+// Create a new product with image
 const createProduct = async (req, res) => {
   try {
+    // If image was uploaded, use its path; otherwise use imageUrl from body
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl;
+
     const product = await Product.create({
-      ...req.body,
-      seller: req.user.id
+      name: req.body.name,
+      category: req.body.category,
+      price: req.body.price,
+      description: req.body.description,
+      location: req.body.location,
+      imageUrl,                // save uploaded image path
+      seller: req.user.id,     // from authMiddleware
     });
+
     res.status(201).json(product);
   } catch (err) {
     res.status(400).json({ message: err.message });

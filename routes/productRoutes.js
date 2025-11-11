@@ -3,12 +3,13 @@ const router = express.Router();
 const { createProduct, getProducts, getProductById, updateProduct, deleteProduct } = require('../controllers/productController');
 const { protect } = require('../middleware/authMiddleware');
 const commentRoutes = require('./commentRoutes');
+const upload = require('../middleware/uploadMiddleware');
 
 // Nested routes for comments
 router.use('/:id/comments', commentRoutes);
 
-// Create a Product
-router.post('/', protect, createProduct);
+// Create a Product with image upload
+router.post('/', protect, upload.single('image'), createProduct);
 
 // Get all Products
 router.get('/', getProducts);

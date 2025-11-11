@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -27,7 +28,11 @@ app.use('/api/products', productRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/farmers', farmerRoutes);
+app.use(express.json());
 
+
+// serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 // Default route
 app.get('/', (req, res) => {
